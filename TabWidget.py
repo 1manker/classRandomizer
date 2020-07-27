@@ -4,11 +4,15 @@
 
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
+import ClassList
 
 class TabWidget(QWidget):
 
 	def __init__(self, parent):
 		super(QWidget, self).__init__(parent)
+		#list object to keep track of class list
+		self.uploadedList = ClassList.ClassList()
+
 		self.layout = QVBoxLayout(self)
 
 		self.tabs = QTabWidget()
@@ -23,13 +27,14 @@ class TabWidget(QWidget):
 		self.tabs.addTab(self.tab3, "Seating Chart")
 
 		#add some buttons!
-		self._createButtons()
+		self._createButtonsT1()
+		self._createButtonsT2()
 
 		#add the tabs
 		self.layout.addWidget(self.tabs)
 		self.setLayout(self.layout)
 
-	def _createButtons(self):
+	def _createButtonsT1(self):
 
 		buttonsLayout = QGridLayout()
 
@@ -67,6 +72,8 @@ class TabWidget(QWidget):
 		if(b.text() == 'Save Class List'):
 			self.saveList()
 			self.info.setReadOnly(True)
+		if(b.text() == "Genders"):
+			self.getGenderSplit()
 
 	def getList(self):
 		#opens file explorer for list upload
@@ -97,6 +104,7 @@ class TabWidget(QWidget):
 			f.seek(0,0)
 			#put the file contents in the textbox
 			self.info.setText(f.read())
+			self.uploadedList.importList(fileName[0])
 			f.close()
 
 	def saveList(self):
@@ -111,3 +119,42 @@ class TabWidget(QWidget):
 			text = self.info.toPlainText()
 			f.write(text)
 			f.close()
+
+	#functions for tab2
+
+	#general layout of tab2
+	def _createButtonsT2(self):
+
+		buttonsLayout = QGridLayout() 
+
+		#determines if class list is uploaded and valid
+
+
+		self.uploadValid = QTextBrowser(self.tab2)
+		self.uploadValid.setReadOnly(True)
+		self.uploadValid.setMaximumHeight(25)
+		buttonsLayout.addWidget(self.uploadValid, 0, 0, 1, 0)
+		self.uploadValid.setText("kek")
+
+		self.b5 = QPushButton('Upload')
+		buttonsLayout.addWidget(self.b5, 1, 2)
+
+		self.b5.clicked.connect(lambda:self.whichbtn(self.b5))
+		self.genderExp = QTextBrowser(self.tab2)
+		self.genderExp.setReadOnly(True)
+		self.genderExp.setMaximumHeight(25)
+		self.genderExp.setMaximumWidth(250)
+		buttonsLayout.addWidget(self.genderExp, 2, 0, 1, 0)
+		self.genderExp.setText("LIST IS VALID")
+
+		self.b4 = QPushButton('Genders')
+		buttonsLayout.addWidget(self.b4, 3, 2)
+		self.b4.clicked.connect(lambda:self.whichbtn(self.b4))
+
+		buttonsLayout.setContentsMargins(25,25,25,25)
+		buttonsLayout.setAlignment(Qt.AlignTop)
+		self.tab2.setLayout(buttonsLayout)
+
+	def getGenderSplit(self):
+		strex = self.uploadedList.getGenderSplit()
+		self.genderExp.setText(strex)
